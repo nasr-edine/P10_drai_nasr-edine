@@ -216,7 +216,6 @@ class CommentDetail(APIView):
     def put(self, request, pk_project, pk_issue, pk_comment, format=None):
         project = self.get_object(pk_project)
         list_contributors = project.contributors.all()
-        list_contributors = project.contributors.all()
         if not request.user in list_contributors:
             return Response({
                 "message": "You are not authorized to update a comment, because you are not a contributor in this project"
@@ -242,3 +241,33 @@ class CommentDetail(APIView):
                              "issues": issue.title,
                              "comment": serializer.data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk_project, pk_issue, pk_comment, format=None):
+        project = self.get_object(pk_project)
+        list_contributors = project.contributors.all()
+        if not request.user in list_contributors:
+            return Response({
+                "message": "You are not authorized to delete a comment, because you are not a contributor in this project"
+            })
+        try:
+            issue = project.issues.get(pk=pk_issue)
+        except Issue.DoesNotExist:
+            return Response({"message": "This  issue doesn't exist in this project."},
+                            status=status.HTTP_404_NOT_FOUND)
+        print(issue)
+        try:
+            comment = issue.comments.get(pk=pk_comment)
+        except Comment.DoesNotExist:
+            return Response({"message": "The id comment doesn't exist in database."},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        if not request.user == comment.author_id:
+            return Response({"message": "You are not authorized to delete this comment, because you are not the author"},
+                            status=status.HTTP_403_FORBIDDEN)
+        try:
+            comment.delete()
+        except ProtectedError:
+            return Response({"message": "This comment can't be deleted!!"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Comment Removed Successfully from the issue."},
+                        status=status.HTTP_204_NO_CONTENT)
