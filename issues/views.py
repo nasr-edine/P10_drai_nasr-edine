@@ -1,3 +1,4 @@
+from rest_framework.serializers import Serializer
 from issues.models import Issue
 from rest_framework.views import APIView
 from django.http import Http404
@@ -155,3 +156,25 @@ class CommentList(APIView):
         return Response({"Project name": project.title,
                          "Issue name": issue.title,
                          "comments": serializer.data})
+
+    def post(self, request, pk_project, pk_issue, format=None):
+        project = self.get_object(pk=pk_project)
+        # check if the current user is associate to the project
+        list_contributors = project.contributors.all()
+        if not request.user in list_contributors:
+            return Response({
+                "message": "You are not authorized to create a comment, because you are not a contributor in this project"
+            })
+        print(project)
+        try:
+            issue = project.issues.get(pk=pk_issue)
+        except Issue.DoesNotExist:
+            return Response({"message": "The id issue doesn't exist in database."},
+                            status=status.HTTP_404_NOT_FOUND)
+        serializer = CommentSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors)
+        comment = serializer.save(author_id=request.user, issue_id=issue)
+        return Response({"Project name": project.title,
+                         "Issue name": issue.title,
+                         "comment": serializer.data})

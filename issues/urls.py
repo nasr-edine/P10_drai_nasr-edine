@@ -15,6 +15,8 @@ urlpatterns = [
     # PUT /projects/{id}/issues/{id}
     # 14/ Supprimer un problème d'un projet
     # DELETE /projects/{id}/issues/{id}
+    # 15. Créer des commentaires sur un problème 
+    # POST /projects/{id}/issues/{id}/comments/
     path('projects/<int:pk_project>/issues/<int:pk_issue>/',
          ProjectIssuesDetail.as_view()),
 
