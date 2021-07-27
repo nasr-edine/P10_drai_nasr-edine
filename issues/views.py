@@ -14,6 +14,7 @@ from issues.models import Comment
 from projects.serializers import ProjectSerializer
 from issues.serializers import ProjectIssuesSerializer, UpdateProjectIssuesSerializer
 from issues.serializers import CommentSerializer
+from issues.serializers import UpdateCommentSerializer
 
 # Create your views here.
 
@@ -194,7 +195,7 @@ class CommentDetail(APIView):
         list_contributors = project.contributors.all()
         if not request.user in list_contributors:
             return Response({
-                "message": "You are not authorized to comment issues for this project, because you are not a contributor in this project"
+                "message": "You are not authorized to view a detail comment for this project, because you are not a contributor in this project"
             })
         try:
             issue = project.issues.get(pk=pk_issue)
@@ -211,3 +212,33 @@ class CommentDetail(APIView):
         return Response({"Project name": project.title,
                          "issues": issue.title,
                          "comment": serializer.data})
+
+    def put(self, request, pk_project, pk_issue, pk_comment, format=None):
+        project = self.get_object(pk_project)
+        list_contributors = project.contributors.all()
+        list_contributors = project.contributors.all()
+        if not request.user in list_contributors:
+            return Response({
+                "message": "You are not authorized to update a comment, because you are not a contributor in this project"
+            })
+        try:
+            issue = project.issues.get(pk=pk_issue)
+        except Issue.DoesNotExist:
+            return Response({"message": "This  issue doesn't exist in this project."},
+                            status=status.HTTP_404_NOT_FOUND)
+        try:
+            comment = issue.comments.get(pk=pk_comment)
+        except Comment.DoesNotExist:
+            return Response({"message": "The id comment doesn't exist in database."},
+                            status=status.HTTP_404_NOT_FOUND)
+        if not request.user == comment.author_id:
+            return Response({"message": "You are not authorized to update this comment, because you are not the author"},
+                            status=status.HTTP_403_FORBIDDEN)
+        serializer = UpdateCommentSerializer(
+            comment, data=request.data)
+        if serializer.is_valid():
+            comment = serializer.save()
+            return Response({"Project name": project.title,
+                             "issues": issue.title,
+                             "comment": serializer.data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
