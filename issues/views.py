@@ -9,6 +9,7 @@ from django.db.models import ProtectedError
 
 from projects.models import Project
 from issues.models import Issue
+from issues.models import Comment
 
 from projects.serializers import ProjectSerializer
 from issues.serializers import ProjectIssuesSerializer, UpdateProjectIssuesSerializer
@@ -66,9 +67,6 @@ class ProjectIssuesList(APIView):
 
 
 class ProjectIssuesDetail(APIView):
-    """
-    List all issues for a given project
-    """
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated]
@@ -177,4 +175,39 @@ class CommentList(APIView):
         comment = serializer.save(author_id=request.user, issue_id=issue)
         return Response({"Project name": project.title,
                          "Issue name": issue.title,
+                         "comment": serializer.data})
+
+
+class CommentDetail(APIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk):
+        try:
+            return Project.objects.get(pk=pk)
+        except Project.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk_project, pk_issue, pk_comment, format=None):
+        project = self.get_object(pk=pk_project)
+        list_contributors = project.contributors.all()
+        if not request.user in list_contributors:
+            return Response({
+                "message": "You are not authorized to comment issues for this project, because you are not a contributor in this project"
+            })
+        try:
+            issue = project.issues.get(pk=pk_issue)
+        except Issue.DoesNotExist:
+            return Response({"message": "The id issue doesn't exist in database."},
+                            status=status.HTTP_404_NOT_FOUND)
+        print(issue)
+        try:
+            comment = issue.comments.get(pk=pk_comment)
+        except Comment.DoesNotExist:
+            return Response({"message": "The id comment doesn't exist in database."},
+                            status=status.HTTP_404_NOT_FOUND)
+        serializer = CommentSerializer(comment)
+        return Response({"Project name": project.title,
+                         "issues": issue.title,
                          "comment": serializer.data})
