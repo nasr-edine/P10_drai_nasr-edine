@@ -16,7 +16,7 @@ class ProjectIssuesSerializer(serializers.ModelSerializer):
 class UpdateProjectIssuesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
-        fields = ['id', 'title', 'project',
+        fields = ['id', 'title', 'desc', 'project',
                   'author', 'assignee', 'created_time']
         read_only_fields = ['author', 'project', 'created_time']
 

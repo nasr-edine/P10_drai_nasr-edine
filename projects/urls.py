@@ -26,7 +26,7 @@ urlpatterns = [
     path('projects/<int:pk>/users/', ProjectContributorsList.as_view()),
 
     # 10/ Supprimer un utilisateur d'un projet
-    path('projects/<int:pk_project>/users/<int:pk_user>',
+    path('projects/<int:pk_project>/users/<int:pk_user>/',
          ProjectContributorsList.as_view()),
 
 

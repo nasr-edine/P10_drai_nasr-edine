@@ -1,4 +1,6 @@
+from django.db.models.fields import CharField
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from django.contrib.auth.models import User
 from projects.models import Project
@@ -6,9 +8,21 @@ from projects.models import Contributor
 
 
 class UserSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    first_name = serializers.CharField(
+        required=True
+    )
+    last_name = serializers.CharField(
+        required=True
+    )
+
     class Meta:
         model = User
-        fields = ['username', 'password']
+        fields = ['id', 'username', 'password',
+                  'first_name', 'last_name', 'email']
         extra_kwargs = {
             'password': {'write_only': True},
         }
@@ -16,7 +30,11 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
-            password=validated_data['password'])
+            password=validated_data['password'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            email=validated_data['email']
+        )
         return user
 
 
@@ -40,7 +58,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         project = Project(
             title=validated_data['title'],
-            # description=validated_data['description'],
+            description=validated_data['description'],
             type=validated_data['type']
         )
         project.save()

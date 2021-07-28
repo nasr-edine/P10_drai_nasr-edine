@@ -27,12 +27,15 @@ class RegisterAPI(generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_409_CONFLICT
+                            )
         user = serializer.save()
+
         return Response({
             "user": UserSerializer(user, context=self.get_serializer_context()).data,
-            "message": "User Created Successfully. Now perform Login to get your token",
-        })
+            "message": "User Created Successfully. Now perform Login to get your token"},
+            status=status.HTTP_201_CREATED)
 
 
 class ProjectList(generics.ListCreateAPIView):
@@ -165,7 +168,7 @@ class ProjectContributorsList(APIView):
             else:
                 return Response(serializer.errors)
             return Response({"Project name": project.title,
-                             "user to add": user.username})
+                             "user added": UserSerializer(user).data})
         else:
             return Response({"message": "You are not allowed to add a user to this project. Only the creator can add a new user"},
                             status=status.HTTP_403_FORBIDDEN)

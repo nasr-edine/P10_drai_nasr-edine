@@ -64,7 +64,9 @@ class ProjectIssuesList(APIView):
         issue = serializer.save(author=request.user, project=project)
 
         return Response({"Project name": project.title,
-                         "issue name added": issue.title})
+                        "key": ProjectIssuesSerializer(issue).data},
+                        status=status.HTTP_201_CREATED
+                        )
 
 
 class ProjectIssuesDetail(APIView):
