@@ -19,6 +19,7 @@ from issues.serializers import UpdateCommentSerializer
 # Create your views here.
 
 
+
 class ProjectIssuesList(APIView):
     """
     List all issues for a given project

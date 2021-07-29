@@ -1,3 +1,4 @@
+from rest_framework.exceptions import NotFound
 from rest_framework import generics
 
 from projects.serializers import ProjectSerializer
@@ -17,6 +18,53 @@ from django.db.models import ProtectedError
 
 from projects.models import Project
 from projects.models import Contributor
+
+from rest_framework.decorators import api_view, permission_classes
+from projects.custompermissions import ReadOnly
+from projects.custompermissions import WriteOnly
+from projects.custompermissions import ReadOnlyForContributors
+from projects.custompermissions import ReadAndWriteOnly
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def example_view(request, format=None):
+    content = {
+        'status': 'request was permitted'
+    }
+    return Response(content)
+
+
+class ExampleView(APIView):
+    # permission_classes = [IsAuthenticated]
+    # permission_classes = [ReadOnly]
+    permission_classes = [ReadOnlyForContributors]
+
+    def get(self, request, format=None):
+        # obj = None
+        # self.check_object_permissions(self.request, obj)
+        content = {
+            'status': 'request was permitted'
+        }
+        return Response(content)
+
+    def post(self, request, format=None):
+        content = {
+            'status': 'request was permitted'
+        }
+        return Response(content)
+
+    def put(self, request, format=None):
+        content = {
+            'status': 'request was permitted'
+        }
+        return Response(content)
+
+    def delete(self, request, format=None):
+        content = {
+            'status': 'request was permitted'
+        }
+        return Response(content)
 
 
 class RegisterAPI(generics.CreateAPIView):
@@ -43,18 +91,21 @@ class ProjectList(generics.ListCreateAPIView):
     List all projects for current user, or create a new project.
     """
     permission_classes = [IsAuthenticated]
-    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
-    def list(self, request):
+    # Get list projects filtering by current user
+    def get_queryset(self):
         queryset = Project.objects.filter(
-            contributors=request.user)
-        if queryset:
-            serializer = ProjectSerializer(queryset, many=True)
-            return Response(serializer.data)
-        return Response({
-            "message": "You have not project actually",
-        })
+            contributors=self.request.user)
+        return queryset
+
+    # def list(self, request):
+    #     queryset = self.get_queryset()
+    #     if queryset:
+    #         serializer = ProjectSerializer(queryset, many=True)
+    #         return Response(serializer.data)
+    #     else:
+    #         raise NotFound()
 
 
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
