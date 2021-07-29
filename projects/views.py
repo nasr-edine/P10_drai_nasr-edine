@@ -109,11 +109,6 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
                         status=status.HTTP_204_NO_CONTENT)
 
 
-# class UserDetail(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-
-
 class ProjectContributorsList(APIView):
     """
     List all contributors for a given project, or add a new user to a given project.
@@ -132,8 +127,9 @@ class ProjectContributorsList(APIView):
         project = self.get_object(pk=pk)
         contributors = project.contributors.all()
         contributors2 = Contributor.objects.filter(project=project)
+        # contributors2.role = 'contributor'
         serializer2 = ContributorSerializer(contributors2, many=True)
-
+        # serializer2.save()
         print(contributors2)
         if not contributors:
             return Response({"message": "There are not contributors to this project."},
@@ -162,6 +158,10 @@ class ProjectContributorsList(APIView):
                 contributors = project.contributors.all()
                 if not user in contributors:
                     project.contributors.add(user)
+                    contributor = Contributor.objects.get(
+                        project=project, user=user)
+                    contributor.role = 'contributor'
+                    contributor.save()
                 else:
                     return Response({"message": "This user is already added to the project."},
                                     status=status.HTTP_400_BAD_REQUEST)

@@ -38,6 +38,12 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
+class authorProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+
+
 class ContributorSerializer(serializers.ModelSerializer):
     user = UserSerializer()
 
@@ -47,7 +53,16 @@ class ContributorSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    contributors = UserSerializer(many=True, read_only=True)
+    contributors = authorProjectSerializer(many=True, read_only=True)
+    title = serializers.CharField(
+        required=True
+    )
+    description = serializers.CharField(
+        required=True
+    )
+    type = serializers.CharField(
+        required=True
+    )
 
     class Meta:
         model = Project
