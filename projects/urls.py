@@ -4,13 +4,8 @@ from projects.views import ProjectList
 from projects.views import ProjectDetail
 from projects.views import RegisterAPI
 from projects.views import ProjectContributorsList
-from projects.views import ExampleView
-from projects.views import example_view
 
 urlpatterns = [
-
-    path('example-fbv/', example_view),
-    path('example-cbv/', ExampleView.as_view()),
 
     # 1/ Inscription de l'utilisateur
     path('signup/', RegisterAPI.as_view()),

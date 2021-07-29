@@ -1,77 +1,26 @@
 from rest_framework import permissions
-from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
-from projects.models import Project
+from projects.models import Contributor
 
 
-# class ReadOnlyForContributors(BasePermission):
-#     def has_object_permission(self, request, view, obj):
-#         print(obj)
-#         print('False')
-#         return False
-
-
-class ReadOnlyForContributors(BasePermission):
-    def has_permission(self, request, view):
-        contributor = Project.objects.filter(
-            contributors=request.user)
-        print(contributor)
-
-        print("True")
-        return True
-
-
-class ReadAndWriteOnly(BasePermission):
-    def has_permission(self, request, view):
-        print("True")
-        return True
-
-
-class ReadOnly(BasePermission):
-    def has_permission(self, request, view):
-
-        return request.method in SAFE_METHODS
-
-
-class WriteOnly(BasePermission):
-    def has_permission(self, request, view):
-        if request.method in SAFE_METHODS:
+class IsCreatorOrReadOnlyForContributor(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        try:
+            test = Contributor.objects.get(user=request.user, project=obj)
+        except Contributor.DoesNotExist:
+            print("You are not because you are not a contributor in this project")
             return False
-        else:
+
+        if request.method in permissions.SAFE_METHODS:
+            print("You are access in read only because you're contributor")
             return True
 
-# class IsProjectContributorReadUpdate(BasePermission):
-#     def has_object_permission(self, request, view, obj):
-#         list_contributors = obj.contributors.all()
-#         if request.user in list_contributors:
-
-#             if request.method in SAFE_METHODS:
-#                 # The method is a safe method
-#                 return True
-#             else:
-#                 # The method isn't a safe method
-#                 # Only owners are granted permissions for unsafe methods
-#                 return obj.author_user_id == request.user
-
-
-# class IsProjectCreatorReadUpdateDelete(BasePermission):
-#     def has_object_permission(self, request, view, obj):
-#         if request.method in SAFE_METHODS:
-#             # The method is a safe method
-#             return True
-#         else:
-#             # The method isn't a safe method
-#             # Only owners are granted permissions for unsafe methods
-#             return obj.author_user_id == request.user
-
-
-# def has_object_permission(self, request, view, obj):
-#     # Read permissions are allowed to any request for contributors,
-#     # so we'll always allow GET, HEAD or OPTIONS requests.
-#     contributors = User.objects.filter(project=obj)
-#     creator = User.objects.filter(project=obj, contributor__role='creator')
-
-#     if request.user == creator:
-#         return True
-#     elif request.method in permissions.SAFE_METHODS and request.user in contributors:
-#         return True
-#     return False
+        # Write permissions are only allowed to the creator of the project.
+        try:
+            test = Contributor.objects.get(
+                user=request.user, project=obj, role='creator')
+            print("You are access because you're the creator")
+            return True
+        except Contributor.DoesNotExist:
+            print(
+                "You are not access in Write because you're a contributor but not a creator")
+            return False

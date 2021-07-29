@@ -1,4 +1,4 @@
-from rest_framework.exceptions import NotFound
+# from rest_framework.exceptions import NotFound
 from rest_framework import generics
 
 from projects.serializers import ProjectSerializer
@@ -10,61 +10,14 @@ from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from django.shortcuts import get_object_or_404
 from django.http import Http404
-from django.core.exceptions import PermissionDenied
 from rest_framework.views import APIView
 from django.db.models import ProtectedError
 
 from projects.models import Project
 from projects.models import Contributor
 
-from rest_framework.decorators import api_view, permission_classes
-from projects.custompermissions import ReadOnly
-from projects.custompermissions import WriteOnly
-from projects.custompermissions import ReadOnlyForContributors
-from projects.custompermissions import ReadAndWriteOnly
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def example_view(request, format=None):
-    content = {
-        'status': 'request was permitted'
-    }
-    return Response(content)
-
-
-class ExampleView(APIView):
-    # permission_classes = [IsAuthenticated]
-    # permission_classes = [ReadOnly]
-    permission_classes = [ReadOnlyForContributors]
-
-    def get(self, request, format=None):
-        # obj = None
-        # self.check_object_permissions(self.request, obj)
-        content = {
-            'status': 'request was permitted'
-        }
-        return Response(content)
-
-    def post(self, request, format=None):
-        content = {
-            'status': 'request was permitted'
-        }
-        return Response(content)
-
-    def put(self, request, format=None):
-        content = {
-            'status': 'request was permitted'
-        }
-        return Response(content)
-
-    def delete(self, request, format=None):
-        content = {
-            'status': 'request was permitted'
-        }
-        return Response(content)
+from projects.custompermissions import IsCreatorOrReadOnlyForContributor
 
 
 class RegisterAPI(generics.CreateAPIView):
@@ -112,52 +65,9 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Retrieve, update or delete a project instance.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsCreatorOrReadOnlyForContributor]
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-
-    def get_object(self, pk):
-        try:
-            return Project.objects.get(pk=pk)
-        except Project.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk):
-        project = self.get_object(pk=pk)
-        serializer = ProjectSerializer(project)
-        list_contributors = project.contributors.all()
-        if request.user in list_contributors:
-            return Response(serializer.data)
-        return Response({
-            "message": "You are not authorized to view detail of this project, because you are not registred in this project"
-        })
-
-    def put(self, request, pk, format=None):
-        project = self.get_object(pk)
-        serializer = ProjectSerializer(project, data=request.data)
-        list_contributors = project.contributors.all()
-        if request.user in list_contributors:
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({
-            "message": "You are not authorized to update this project, because you are not registred in",
-        })
-
-    def delete(self, request, pk, format=None):
-        project = self.get_object(pk)
-        list_contributors = project.contributors.all()
-        creator = User.objects.filter(
-            project=project, contributor__role='creator')
-        # if request.user in list_contributors:
-        if not request.user in creator:
-            return Response({
-                "message": "You are not authorized to delete this project, because you are not the creator",
-            }, status=status.HTTP_403_FORBIDDEN)
-        project.delete()
-        return Response({"message": "Project Deleted Successfully."},
-                        status=status.HTTP_204_NO_CONTENT)
 
 
 class ProjectContributorsList(APIView):
