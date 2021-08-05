@@ -5,7 +5,10 @@ from projects.views import ProjectDetail
 from projects.views import RegisterAPI
 from projects.views import ProjectContributorsList
 
+from projects.views import ProjectContributorsList2, ProjectContributorDestroy
+
 urlpatterns = [
+
 
     # 1/ Inscription de l'utilisateur
     path('signup/', RegisterAPI.as_view()),
@@ -23,10 +26,12 @@ urlpatterns = [
     # 8/ Ajouter un utilisateur (collaborateur) à un projet
     # 9/ Récupérer la liste de tous les utilisateurs d'un projet
     path('projects/<int:pk>/users/', ProjectContributorsList.as_view()),
+    path('projects/<int:pk>/users2/',
+         ProjectContributorsList2.as_view()),
 
     # 10/ Supprimer un utilisateur d'un projet
-    path('projects/<int:pk_project>/users/<int:pk_user>/',
-         ProjectContributorsList.as_view()),
+    path('projects/<int:pk>/users/<int:pk_user>/',
+         ProjectContributorDestroy.as_view()),
 
 
 

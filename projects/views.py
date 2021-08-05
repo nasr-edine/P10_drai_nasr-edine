@@ -5,6 +5,7 @@ from projects.serializers import ProjectSerializer
 from projects.serializers import UserSerializer
 from projects.serializers import ContributorSerializer
 from projects.serializers import AddUserSerializer
+from projects.serializers import ReadWriteSerializerMixin
 
 from django.contrib.auth.models import User
 from rest_framework.response import Response
@@ -68,6 +69,82 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated, IsCreatorOrReadOnlyForContributor]
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+
+
+class ProjectContributorsList2(generics.ListCreateAPIView):
+    """
+    List all contributors for a given project, or add a new user to a given project.
+    """
+    permission_classes = [IsAuthenticated, IsCreatorOrReadOnlyForContributor]
+    serializer_class = ContributorSerializer
+
+    # Get list contributors filtering by current user
+    def get_queryset(self):
+        print('get_queryset called')
+        project = Project.objects.get(pk=self.kwargs['pk'])
+        queryset = Contributor.objects.filter(project=project)
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        serializer = AddUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = User.objects.get(username=serializer.data['username'])
+        except User.DoesNotExist:
+            return Response({"message": "We can't add this user because he doesn't exist in database."},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            project = Project.objects.get(pk=self.kwargs['pk'])
+        except Project.DoesNotExist:
+            return Response({"message": "project don't exist."},
+                            status=status.HTTP_404_NOT_FOUND)
+        contributors = project.contributors.all()
+        if not user in contributors:
+            c1 = Contributor.objects.create(
+                project=project, user=user, role='contributor')
+            c1.save()
+            return Response(ContributorSerializer(c1).data)
+        else:
+            return Response({"message": "This user is already added to the project."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProjectContributorDestroy(generics.DestroyAPIView):
+    # queryset = ProjectContributor.object
+    permission_classes = [IsAuthenticated, IsCreatorOrReadOnlyForContributor]
+
+    serializer_class = ContributorSerializer
+    # queryset = self.get_queryset()
+    queryset = Contributor.objects.all()
+
+    # def get_queryset(self):
+    #     print('get_queryset for destroy called')
+    #     project = Project.objects.get(pk=self.kwargs['pk'])
+    #     print(project)
+    #     user = User.objects.get(pk=self.kwargs['pk_user'])
+    #     print(user)
+    #     contributor = Contributor.objects.filter(
+    #         project=project, user=user).distinct()
+    #     contributor = Contributor.objects.all()
+    #     print(contributor[0])
+
+    #     print(contributor)
+    #     return contributor
+
+    def delete(self, request, pk, pk_user, format=None):
+        print('delete called')
+
+        project = Project.objects.get(pk=self.kwargs['pk'])
+        print(project)
+        user = User.objects.get(pk=self.kwargs['pk_user'])
+        print(user)
+        contributor = Contributor.objects.get(
+            project=project, user=user)
+        if contributor.role == 'creator':
+            return Response({'message': "Yon can remove yourself from the project because you are author"}, status=status.HTTP_403_FORBIDDEN)
+        contributor.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ProjectContributorsList(APIView):

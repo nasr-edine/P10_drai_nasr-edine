@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import ProtectedError
-
+from projects.custompermissions import IsContributor, IsCreatorCommentOrReadOnlyForContributor
+from projects.custompermissions import IsCreatorIssueOrReadOnlyForContributor
 from projects.models import Project
 from issues.models import Issue
 from issues.models import Comment
@@ -16,8 +17,92 @@ from issues.serializers import ProjectIssuesSerializer, UpdateProjectIssuesSeria
 from issues.serializers import CommentSerializer
 from issues.serializers import UpdateCommentSerializer
 
-# Create your views here.
+from rest_framework import generics
+from django.shortcuts import get_object_or_404
 
+
+class ProjectIssuesList2(generics.ListCreateAPIView):
+    serializer_class = ProjectIssuesSerializer
+    permission_classes = [IsAuthenticated, IsContributor]
+
+    def get_queryset(self):
+        return Issue.objects.prefetch_related('project').filter(project__pk=self.kwargs.get('pk_project'))
+
+    def create(self, request, pk_project, format=None):
+        project = get_object_or_404(Project, pk=pk_project)
+        serializer = ProjectIssuesSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors)
+        issue = serializer.save(author=request.user, project=project)
+        return Response(ProjectIssuesSerializer(issue).data)
+
+
+class ProjectIssuesDetail2(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ProjectIssuesSerializer
+    permission_classes = [IsAuthenticated,
+                          IsCreatorIssueOrReadOnlyForContributor]
+
+    def get_queryset(self):
+        try:
+            project = Project.objects.get(pk=self.kwargs.get('pk_project'))
+        except Project.DoesNotExist:
+            raise Http404
+        try:
+            issue = project.issues.get(pk=self.kwargs.get('pk'))
+        except Issue.DoesNotExist:
+            raise Http404
+        queryset = Issue.objects.filter(project=project)
+        return queryset
+
+
+class CommentList2(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated, IsContributor]
+
+    def get_queryset(self):
+        try:
+            project = Project.objects.get(pk=self.kwargs.get('pk_project'))
+        except Project.DoesNotExist:
+            raise Http404
+        try:
+            issue = project.issues.get(pk=self.kwargs.get('pk_issue'))
+        except Issue.DoesNotExist:
+            raise Http404
+        comments = issue.comments.all()
+        return comments
+
+    def create(self, request, pk_project, pk_issue, format=None):
+        project = get_object_or_404(Project, pk=pk_project)
+        try:
+            issue = project.issues.get(pk=pk_issue)
+        except Issue.DoesNotExist:
+            raise Http404
+        serializer = CommentSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors)
+        comment = serializer.save(author_id=request.user, issue_id=issue)
+        return Response(CommentSerializer(comment).data)
+
+
+class CommentDetail2(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated,
+                          IsCreatorCommentOrReadOnlyForContributor]
+
+    def get_queryset(self):
+        try:
+            project = Project.objects.get(pk=self.kwargs.get('pk_project'))
+        except Project.DoesNotExist:
+            raise Http404
+        try:
+            issue = project.issues.get(pk=self.kwargs.get('pk_issue'))
+        except Issue.DoesNotExist:
+            raise Http404
+        try:
+            comment = issue.comments.get(pk=self.kwargs.get('pk'))
+        except Comment.DoesNotExist:
+            raise Http404
+        return Comment.objects.filter(pk=self.kwargs.get('pk'))
 
 
 class ProjectIssuesList(APIView):
