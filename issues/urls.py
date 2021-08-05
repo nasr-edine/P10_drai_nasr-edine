@@ -15,17 +15,17 @@ urlpatterns = [
     path('projects/<int:pk_project>/issues/<int:pk_issue>/comments2/',
          CommentList2.as_view()),
     path('projects/<int:pk_project>/issues/<int:pk_issue>/comments2/<int:pk>/',
-         CommentDetail2.as_view()),
+         CommentDetail2.as_view())
 
     # **********************************************************************************
 
 
-    path('projects/<int:pk>/issues/', ProjectIssuesList.as_view()),
-    path('projects/<int:pk_project>/issues/<int:pk_issue>/',
-         ProjectIssuesDetail.as_view()),
+    #     path('projects/<int:pk>/issues/', ProjectIssuesList.as_view()),
+    #     path('projects/<int:pk_project>/issues/<int:pk_issue>/',
+    #          ProjectIssuesDetail.as_view()),
 
-    path('projects/<int:pk_project>/issues/<int:pk_issue>/comments/',
-         CommentList.as_view()),
-    path('projects/<int:pk_project>/issues/<int:pk_issue>/comments/<int:pk_comment>/',
-         CommentDetail.as_view())
+    #     path('projects/<int:pk_project>/issues/<int:pk_issue>/comments/',
+    #          CommentList.as_view()),
+    #     path('projects/<int:pk_project>/issues/<int:pk_issue>/comments/<int:pk_comment>/',
+    #          CommentDetail.as_view())
 ]
