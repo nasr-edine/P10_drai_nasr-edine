@@ -1,16 +1,27 @@
 from rest_framework import serializers
 
-# from django.contrib.auth.models import User
 from issues.models import Comment, Issue
-
-# from projects.models import Contributor
+from projects.models import Contributor, Project
 
 
 class ProjectIssuesSerializer(serializers.ModelSerializer):
+
+    def validate(self, data):
+        """
+        Check that the assignee user is a project contributor.
+        """
+        project = Project.objects.get(pk=self.context.get("project_id"))
+        user = data['assignee']
+        try:
+            Contributor.objects.get(user=user, project=project)
+        except Contributor.DoesNotExist:
+            raise serializers.ValidationError({"message": "You can not assign this user to this issue, \
+                             because he is not a contributor to the project"})
+        return data
+
     class Meta:
         model = Issue
         fields = ['id', 'title', 'project', 'author', 'assignee']
-        # read_only_fields = ['author']
 
 
 class UpdateProjectIssuesSerializer(serializers.ModelSerializer):

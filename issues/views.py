@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
@@ -9,7 +10,7 @@ from issues.serializers import CommentSerializer, ProjectIssuesSerializer
 from projects.custompermissions import (
     IsContributor, IsCreatorCommentOrReadOnlyForContributor,
     IsCreatorIssueOrReadOnlyForContributor)
-from projects.models import Project
+from projects.models import Contributor, Project
 
 
 class ProjectIssuesList(generics.ListCreateAPIView):
@@ -24,7 +25,8 @@ class ProjectIssuesList(generics.ListCreateAPIView):
 
     def create(self, request, pk_project, format=None):
         project = get_object_or_404(Project, pk=pk_project)
-        serializer = ProjectIssuesSerializer(data=request.data)
+        serializer = ProjectIssuesSerializer(data=request.data, context={'project_id': pk_project})
+
         if not serializer.is_valid():
             return Response(serializer.errors)
         issue = serializer.save(author=request.user, project=project)

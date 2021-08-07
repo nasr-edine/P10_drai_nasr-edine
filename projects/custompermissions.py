@@ -34,9 +34,9 @@ class IsContributor(permissions.BasePermission):
         pk = request.resolver_match.kwargs.get('pk_project')
         try:
             project = Project.objects.get(pk=pk)
-            print(project)
+            (project)
         except Project.DoesNotExist:
-            print('Project.DoesNotExist')
+            ('Project.DoesNotExist')
             raise Http404
         try:
             Contributor.objects.get(user=request.user, project=project)
@@ -75,17 +75,17 @@ class IsCreatorIssueOrReadOnlyForContributor(permissions.BasePermission):
 class IsCreatorCommentOrReadOnlyForContributor(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        print('IsCreatorCommentOrReadOnlyForContributor called')
+        ('IsCreatorCommentOrReadOnlyForContributor called')
         pk = request.resolver_match.kwargs.get('pk_project')
         try:
             project = Project.objects.get(pk=pk)
-            print(project)
+            (project)
         except Project.DoesNotExist:
             raise Http404
         try:
             contributor = Contributor.objects.get(
                 user=request.user, project=project)
-            print(contributor)
+            (contributor)
         except Contributor.DoesNotExist:
             return False
         if request.method in permissions.SAFE_METHODS:
@@ -93,19 +93,19 @@ class IsCreatorCommentOrReadOnlyForContributor(permissions.BasePermission):
         try:
             issue = project.issues.get(
                 pk=request.resolver_match.kwargs.get('pk_issue'))
-            print(issue)
+            (issue)
         except Issue.DoesNotExist:
             raise Http404
         try:
             comment = issue.comments.get(
                 pk=request.resolver_match.kwargs.get('pk'))
-            print(comment)
+            (comment)
         except Comment.DoesNotExist:
             raise Http404
         try:
             comment = issue.comments.get(
                 pk=request.resolver_match.kwargs.get('pk'), author_id=request.user)
-            print(comment)
+            (comment)
             return True
 
         except Comment.DoesNotExist:
