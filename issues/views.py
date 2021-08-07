@@ -12,7 +12,10 @@ from projects.custompermissions import (
 from projects.models import Project
 
 
-class ProjectIssuesList2(generics.ListCreateAPIView):
+class ProjectIssuesList(generics.ListCreateAPIView):
+    """
+    List all issues for a given project, or create a new issue.
+    """
     serializer_class = ProjectIssuesSerializer
     permission_classes = [IsAuthenticated, IsContributor]
 
@@ -28,7 +31,10 @@ class ProjectIssuesList2(generics.ListCreateAPIView):
         return Response(ProjectIssuesSerializer(issue).data)
 
 
-class ProjectIssuesDetail2(generics.RetrieveUpdateDestroyAPIView):
+class ProjectIssuesDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update or delete a single issue.
+    """
     serializer_class = ProjectIssuesSerializer
     permission_classes = [IsAuthenticated,
                           IsCreatorIssueOrReadOnlyForContributor]
@@ -46,7 +52,10 @@ class ProjectIssuesDetail2(generics.RetrieveUpdateDestroyAPIView):
         return queryset
 
 
-class CommentList2(generics.ListCreateAPIView):
+class CommentList(generics.ListCreateAPIView):
+    """
+    List all comments for a given project, or create a new comment.
+    """
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated, IsContributor]
 
@@ -75,7 +84,10 @@ class CommentList2(generics.ListCreateAPIView):
         return Response(CommentSerializer(comment).data)
 
 
-class CommentDetail2(generics.RetrieveUpdateDestroyAPIView):
+class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update or delete a single comment.
+    """
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated,
                           IsCreatorCommentOrReadOnlyForContributor]

@@ -1,8 +1,7 @@
 from django.urls import path
 
-from projects.views import (ProjectContributorDestroy,
-                            ProjectContributorsList, ProjectDetail,
-                            ProjectList, RegisterAPI)
+from projects.views import (ProjectContributorDestroy, ProjectContributorsList,
+                            ProjectDetail, ProjectList, RegisterAPI)
 
 urlpatterns = [
 
