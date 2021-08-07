@@ -1,14 +1,8 @@
-from django.db.models.fields import CharField
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from django.contrib.auth.models import User
-from projects.models import Project
-from projects.models import Contributor
-
-from rest_framework.response import Response
-from rest_framework import status
-from django.http import Http404
+from projects.models import Contributor, Project
 
 
 class UserSerializer(serializers.ModelSerializer):

@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 # from django.contrib.auth.models import User
-from issues.models import Issue
-from issues.models import Comment
+from issues.models import Comment, Issue
+
 # from projects.models import Contributor
 
 

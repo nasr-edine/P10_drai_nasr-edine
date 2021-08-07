@@ -1,11 +1,8 @@
 from django.urls import path
 
-from projects.views import ProjectList
-from projects.views import ProjectDetail
-from projects.views import RegisterAPI
-from projects.views import ProjectContributorsList
-
-from projects.views import ProjectContributorsList2, ProjectContributorDestroy
+from projects.views import (ProjectContributorDestroy,
+                            ProjectContributorsList2, ProjectDetail,
+                            ProjectList, RegisterAPI)
 
 urlpatterns = [
 
@@ -25,7 +22,7 @@ urlpatterns = [
 
     # 8/ Ajouter un utilisateur (collaborateur) à un projet
     # 9/ Récupérer la liste de tous les utilisateurs d'un projet
-    path('projects/<int:pk>/users/', ProjectContributorsList.as_view()),
+    #     path('projects/<int:pk>/users/', ProjectContributorsList.as_view()),
     path('projects/<int:pk>/users2/',
          ProjectContributorsList2.as_view()),
 

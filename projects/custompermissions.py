@@ -1,8 +1,8 @@
-from issues.models import Comment, Issue
-from rest_framework import permissions
-from projects.models import Contributor
-from projects.models import Project
 from django.http import Http404
+from rest_framework import permissions
+
+from issues.models import Comment, Issue
+from projects.models import Contributor, Project
 
 
 class IsCreatorOrReadOnlyForContributor(permissions.BasePermission):
@@ -60,12 +60,12 @@ class IsCreatorIssueOrReadOnlyForContributor(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         try:
-            issue = project.issues.get(
+            project.issues.get(
                 pk=request.resolver_match.kwargs.get('pk'))
         except Issue.DoesNotExist:
             raise Http404
         try:
-            issue = project.issues.get(
+            project.issues.get(
                 pk=request.resolver_match.kwargs.get('pk'), author=request.user)
             return True
         except Issue.DoesNotExist:

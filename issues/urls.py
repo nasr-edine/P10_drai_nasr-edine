@@ -1,9 +1,9 @@
 # from issues.models import Issue
 from django.urls import path
 
-from issues.views import ProjectIssuesList, ProjectIssuesDetail, ProjectIssuesList2, ProjectIssuesDetail2
-from issues.views import CommentList, CommentList2, CommentDetail2
-from issues.views import CommentDetail
+from issues.views import (CommentDetail2, CommentList2, ProjectIssuesDetail2,
+                          ProjectIssuesList2)
+
 urlpatterns = [
 
 
