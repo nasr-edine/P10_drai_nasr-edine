@@ -51,7 +51,7 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ProjectSerializer
 
 
-class ProjectContributorsList2(generics.ListCreateAPIView):
+class ProjectContributorsList(generics.ListCreateAPIView):
     """
     List all contributors for a given project, or add a new contributor.
     """
