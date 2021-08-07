@@ -30,6 +30,9 @@ class RegisterAPI(generics.CreateAPIView):
 
 
 class ProjectList(generics.ListCreateAPIView):
+    """
+    List all contributor projects, or create a new project.
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = ProjectSerializer
 
@@ -40,12 +43,18 @@ class ProjectList(generics.ListCreateAPIView):
 
 
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update or delete a single project.
+    """
     permission_classes = [IsAuthenticated, IsCreatorOrReadOnlyForContributor]
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
 
 class ProjectContributorsList2(generics.ListCreateAPIView):
+    """
+    List all contributors for a given project, or add a new contributor.
+    """
     permission_classes = [IsAuthenticated, IsCreatorOrReadOnlyForContributor]
     serializer_class = ContributorSerializer
 
@@ -79,7 +88,9 @@ class ProjectContributorsList2(generics.ListCreateAPIView):
 
 
 class ProjectContributorDestroy(generics.DestroyAPIView):
-
+    """
+    Delete a single project.
+    """
     serializer_class = ContributorSerializer
     queryset = Contributor.objects.all()
     permission_classes = [IsAuthenticated, IsCreatorOrReadOnlyForContributor]
