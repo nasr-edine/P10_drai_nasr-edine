@@ -8,18 +8,18 @@ TAGS_CHOICES = [
     ("amelioration", 'amelioration'),
 ]
 STATUSES_CHOICES = [
-    ("todo", 'todo'),
-    ("inprogress", 'inprogress'),
-    ("open", 'open'),
-    ("closed", 'closed'),
-    ("reopened", 'reopened'),
-    ("resolved", 'resolved'),
+    ('todo', 'todo'),
+    ('inprogress', 'inprogress'),
+    ('open', 'open'),
+    ('closed', 'closed'),
+    ('reopened', 'reopened'),
+    ('resolved', 'resolved'),
 ]
 PRIORITIES_CHOICES = [
-    ("highest", 'highest'),
-    ("high", 'high'),
-    ("medium", 'medium'),
-    ("low", 'low'),
+    ('highest', 'highest'),
+    ('high', 'high'),
+    ('medium', 'medium'),
+    ('low', 'low'),
 ]
 
 
@@ -60,7 +60,7 @@ class Issue(models.Model):
 
 
 class Comment(models.Model):
-    description = models.CharField(max_length=100)
+    description = models.CharField(max_length=100, blank=False)
     author_id = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True, blank=True)
     issue_id = models.ForeignKey(

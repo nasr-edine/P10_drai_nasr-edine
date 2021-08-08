@@ -36,12 +36,6 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-class authorProjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email']
-
-
 class ContributorSerializer(serializers.ModelSerializer):
     user = UserSerializer()
 
@@ -51,10 +45,13 @@ class ContributorSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    contributors = authorProjectSerializer(many=True, read_only=True)
+    contributors = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='username'
+    )
 
     def get_fields(self, *args, **kwargs):
-        print('get_fields')
         fields = super(ProjectSerializer, self).get_fields(*args, **kwargs)
         request = self.context.get('request', None)
         if request and getattr(request, 'method', None) == "PUT":

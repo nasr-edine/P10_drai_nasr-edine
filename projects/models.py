@@ -2,10 +2,10 @@ from django.contrib.auth.models import User
 from django.db import models
 
 TYPES_CHOICES = [
-    ("front-end", 'front-end'),
-    ("back-end", 'back-end'),
-    ("IOS", 'IOS'),
-    ("Android", 'Android'),
+    ('front-end', 'front-end'),
+    ('back-end', 'back-end'),
+    ('IOS', 'IOS'),
+    ('Android', 'Android'),
 ]
 
 
