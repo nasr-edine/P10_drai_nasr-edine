@@ -2,8 +2,6 @@ from django.db import models
 
 from projects.models import Project, User
 
-# Create your models here.
-
 
 class Issue(models.Model):
     title = models.CharField(max_length=100, blank=False)

@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
@@ -10,7 +9,7 @@ from issues.serializers import CommentSerializer, ProjectIssuesSerializer
 from projects.custompermissions import (
     IsContributor, IsCreatorCommentOrReadOnlyForContributor,
     IsCreatorIssueOrReadOnlyForContributor)
-from projects.models import Contributor, Project
+from projects.models import Project
 
 
 class ProjectIssuesList(generics.ListCreateAPIView):
@@ -22,15 +21,6 @@ class ProjectIssuesList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return Issue.objects.prefetch_related('project').filter(project__pk=self.kwargs.get('pk_project'))
-
-    def create(self, request, pk_project, format=None):
-        project = get_object_or_404(Project, pk=pk_project)
-        serializer = ProjectIssuesSerializer(data=request.data, context={'project_id': pk_project})
-
-        if not serializer.is_valid():
-            return Response(serializer.errors)
-        issue = serializer.save(author=request.user, project=project)
-        return Response(ProjectIssuesSerializer(issue).data)
 
 
 class ProjectIssuesDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -52,6 +42,14 @@ class ProjectIssuesDetail(generics.RetrieveUpdateDestroyAPIView):
             raise Http404
         queryset = Issue.objects.filter(project=project)
         return queryset
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
 
 class CommentList(generics.ListCreateAPIView):
