@@ -52,33 +52,25 @@ class ContributorSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     contributors = authorProjectSerializer(many=True, read_only=True)
-    title = serializers.CharField(
-        required=True
-    )
-    description = serializers.CharField(
-        required=True
-    )
-    type = serializers.CharField(
-        required=True
-    )
+
+    def get_fields(self, *args, **kwargs):
+        print('get_fields')
+        fields = super(ProjectSerializer, self).get_fields(*args, **kwargs)
+        request = self.context.get('request', None)
+        if request and getattr(request, 'method', None) == "PUT":
+            fields['title'].required = False
+            fields['description'].required = False
+        return fields
 
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'type', 'contributors']
+        fields = '__all__'
 
     def create(self, validated_data):
+        project = Project.objects.create(**validated_data)
         current_user = self.context['request'].user
-
-        project = Project(
-            title=validated_data['title'],
-            description=validated_data['description'],
-            type=validated_data['type']
-        )
-        project.save()
-
         c1 = Contributor.objects.create(
             project=project, user=current_user, role='creator')
-
         c1.save()
         return project
 
