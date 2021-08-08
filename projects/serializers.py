@@ -66,9 +66,8 @@ class ProjectSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         project = Project.objects.create(**validated_data)
         current_user = self.context['request'].user
-        c1 = Contributor.objects.create(
+        Contributor.objects.create(
             project=project, user=current_user, role='creator')
-        c1.save()
         return project
 
 

@@ -80,7 +80,7 @@ class ProjectContributorsList(generics.ListCreateAPIView):
         if user not in contributors:
             c1 = Contributor.objects.create(
                 project=project, user=user, role='contributor')
-            c1.save()
+            # c1.save()
             return Response(ContributorSerializer(c1).data)
         else:
             return Response({"message": "This user is already added to the project."},

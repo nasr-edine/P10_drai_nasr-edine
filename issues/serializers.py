@@ -7,7 +7,6 @@ from projects.models import Contributor, Project
 
 class ProjectIssuesSerializer(serializers.ModelSerializer):
     def get_fields(self, *args, **kwargs):
-        print('get_fields')
         fields = super(ProjectIssuesSerializer, self).get_fields(*args, **kwargs)
         request = self.context.get('request', None)
         if request and getattr(request, 'method', None) == "PUT":
