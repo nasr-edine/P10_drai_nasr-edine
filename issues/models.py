@@ -25,7 +25,7 @@ PRIORITIES_CHOICES = [
 
 class Issue(models.Model):
     title = models.CharField(max_length=100, blank=False)
-    desc = models.CharField(max_length=100, blank=False)
+    desc = models.CharField(max_length=200, blank=False)
     tag = models.CharField(
         max_length=20,
         choices=TAGS_CHOICES,
@@ -60,7 +60,7 @@ class Issue(models.Model):
 
 
 class Comment(models.Model):
-    description = models.CharField(max_length=100, blank=False)
+    description = models.CharField(max_length=200, blank=False)
     author_id = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True, blank=True)
     issue_id = models.ForeignKey(
