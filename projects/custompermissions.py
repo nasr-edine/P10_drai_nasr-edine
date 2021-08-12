@@ -8,7 +8,7 @@ from projects.models import Contributor, Project
 class IsCreatorOrReadOnlyForContributor(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        pk = request.resolver_match.kwargs.get('pk')
+        pk = request.resolver_match.kwargs.get("pk")
         try:
             project = Project.objects.get(pk=pk)
         except Project.DoesNotExist:
@@ -22,7 +22,7 @@ class IsCreatorOrReadOnlyForContributor(permissions.BasePermission):
             return True
         try:
             Contributor.objects.get(
-                user=request.user, project=project, role='creator')
+                user=request.user, project=project, role="creator")
             return True
         except Contributor.DoesNotExist:
             return False
@@ -31,12 +31,12 @@ class IsCreatorOrReadOnlyForContributor(permissions.BasePermission):
 class IsContributor(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        pk = request.resolver_match.kwargs.get('pk_project')
+        pk = request.resolver_match.kwargs.get("pk_project")
         try:
             project = Project.objects.get(pk=pk)
             (project)
         except Project.DoesNotExist:
-            ('Project.DoesNotExist')
+            ("Project.DoesNotExist")
             raise Http404
         try:
             Contributor.objects.get(user=request.user, project=project)
@@ -48,7 +48,7 @@ class IsContributor(permissions.BasePermission):
 class IsCreatorIssueOrReadOnlyForContributor(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        pk = request.resolver_match.kwargs.get('pk_project')
+        pk = request.resolver_match.kwargs.get("pk_project")
         try:
             project = Project.objects.get(pk=pk)
         except Project.DoesNotExist:
@@ -61,12 +61,12 @@ class IsCreatorIssueOrReadOnlyForContributor(permissions.BasePermission):
             return True
         try:
             project.issues.get(
-                pk=request.resolver_match.kwargs.get('pk'))
+                pk=request.resolver_match.kwargs.get("pk"))
         except Issue.DoesNotExist:
             raise Http404
         try:
             project.issues.get(
-                pk=request.resolver_match.kwargs.get('pk'), author=request.user)
+                pk=request.resolver_match.kwargs.get("pk"), author=request.user)
             return True
         except Issue.DoesNotExist:
             return False
@@ -75,8 +75,8 @@ class IsCreatorIssueOrReadOnlyForContributor(permissions.BasePermission):
 class IsCreatorCommentOrReadOnlyForContributor(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        ('IsCreatorCommentOrReadOnlyForContributor called')
-        pk = request.resolver_match.kwargs.get('pk_project')
+        ("IsCreatorCommentOrReadOnlyForContributor called")
+        pk = request.resolver_match.kwargs.get("pk_project")
         try:
             project = Project.objects.get(pk=pk)
             (project)
@@ -92,19 +92,19 @@ class IsCreatorCommentOrReadOnlyForContributor(permissions.BasePermission):
             return True
         try:
             issue = project.issues.get(
-                pk=request.resolver_match.kwargs.get('pk_issue'))
+                pk=request.resolver_match.kwargs.get("pk_issue"))
             (issue)
         except Issue.DoesNotExist:
             raise Http404
         try:
             comment = issue.comments.get(
-                pk=request.resolver_match.kwargs.get('pk'))
+                pk=request.resolver_match.kwargs.get("pk"))
             (comment)
         except Comment.DoesNotExist:
             raise Http404
         try:
             comment = issue.comments.get(
-                pk=request.resolver_match.kwargs.get('pk'), author_id=request.user)
+                pk=request.resolver_match.kwargs.get("pk"), author_id=request.user)
             (comment)
             return True
 
